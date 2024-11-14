@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  finance-api:
+    build:
+      context: .
+      dockerfile: Finance.API/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db;Database=FinanceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+    networks:
+      - backend
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - db-data:/var/opt/mssql/data
+    networks:
+      - backend
+
+  report-generator:
+    build:
+      context: .
+      dockerfile: Finance.ReportGenerator/Dockerfile
+    volumes:
+      - reports:/app/Reports
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - finance-api
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - reports:/app/public/reports
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  db-data:
+  reports:

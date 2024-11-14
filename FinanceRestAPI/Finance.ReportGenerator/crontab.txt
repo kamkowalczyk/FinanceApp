@@ -1,0 +1,1 @@
+0 0 * * * /bin/bash /app/run.sh >> /var/log/cron.log 2>&1
