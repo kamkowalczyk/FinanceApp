@@ -34,34 +34,41 @@ namespace Finance.Application.Services
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JObject.Parse(content);
 
-                var rates = data["rates"];
-
-                foreach (var rate in rates)
+                if (data["rates"] != null)
                 {
-                    var currencyCode = rate.Path;
-                    var currencyRate = (decimal)rate.First;
+                    var rates = data["rates"];
 
-                    var currency = await _currencyRepository.GetByCodeAsync(currencyCode);
-
-                    if (currency == null)
+                    foreach (var rate in rates)
                     {
-                        currency = new Currency
+                        var currencyCode = rate.Path;
+                        var currencyRate = (decimal)rate.First;
+
+                        var currency = await _currencyRepository.GetByCodeAsync(currencyCode);
+
+                        if (currency == null)
                         {
-                            Code = currencyCode,
-                            Name = currencyCode 
+                            currency = new Currency
+                            {
+                                Code = currencyCode,
+                                Name = currencyCode
+                            };
+
+                            await _currencyRepository.AddAsync(currency);
+                        }
+
+                        var exchangeRate = new ExchangeRate
+                        {
+                            CurrencyId = currency.Id,
+                            Rate = currencyRate,
+                            Date = DateTime.UtcNow.Date
                         };
 
-                        await _currencyRepository.AddAsync(currency);
+                        await _exchangeRateRepository.AddAsync(exchangeRate);
                     }
-
-                    var exchangeRate = new ExchangeRate
-                    {
-                        CurrencyId = currency.Id,
-                        Rate = currencyRate,
-                        Date = DateTime.UtcNow.Date
-                    };
-
-                    await _exchangeRateRepository.AddAsync(exchangeRate);
+                }
+                else
+                {
+                    _logger.LogError("Rates data is missing in the API response.");
                 }
             }
             else
