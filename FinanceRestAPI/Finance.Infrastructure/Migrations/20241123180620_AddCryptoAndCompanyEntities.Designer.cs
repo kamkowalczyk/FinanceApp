@@ -4,6 +4,7 @@ using Finance.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Infrastructure.Migrations
 {
     [DbContext(typeof(FinanceDbContext))]
-    partial class FinanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123180620_AddCryptoAndCompanyEntities")]
+    partial class AddCryptoAndCompanyEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,26 +53,6 @@ namespace Finance.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CurrentPrice = 150.00m,
-                            LastUpdated = new DateTime(2024, 4, 25, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 2500000000m,
-                            Name = "Apple",
-                            Symbol = "AAPL"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CurrentPrice = 280.00m,
-                            LastUpdated = new DateTime(2024, 4, 25, 10, 5, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 2100000000m,
-                            Name = "Microsoft",
-                            Symbol = "MSFT"
-                        });
                 });
 
             modelBuilder.Entity("Finance.Domain.Entities.CryptoCurrency", b =>
@@ -103,28 +86,6 @@ namespace Finance.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CryptoCurrencies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CurrentPrice = 30000.00m,
-                            LastUpdated = new DateTime(2024, 4, 25, 11, 0, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 600000000000m,
-                            Name = "Bitcoin",
-                            Symbol = "BTC",
-                            TotalVolume = 25000000m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CurrentPrice = 2000.00m,
-                            LastUpdated = new DateTime(2024, 4, 25, 11, 5, 0, 0, DateTimeKind.Unspecified),
-                            MarketCap = 250000000000m,
-                            Name = "Ethereum",
-                            Symbol = "ETH",
-                            TotalVolume = 15000000m
-                        });
                 });
 
             modelBuilder.Entity("Finance.Domain.Entities.Currency", b =>
@@ -146,26 +107,6 @@ namespace Finance.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Currencies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "USD",
-                            Name = "US Dollar"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Code = "EUR",
-                            Name = "Euro"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "GBP",
-                            Name = "British Pound"
-                        });
                 });
 
             modelBuilder.Entity("Finance.Domain.Entities.ExchangeRate", b =>
@@ -190,29 +131,6 @@ namespace Finance.Infrastructure.Migrations
                     b.HasIndex("CurrencyId");
 
                     b.ToTable("ExchangeRates");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CurrencyId = 1,
-                            Date = new DateTime(2024, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rate = 1.00m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CurrencyId = 2,
-                            Date = new DateTime(2024, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rate = 1.10m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CurrencyId = 3,
-                            Date = new DateTime(2024, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rate = 1.30m
-                        });
                 });
 
             modelBuilder.Entity("Finance.Domain.Entities.ExchangeRate", b =>
