@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch';
+import { mockExchangeRates } from "../mockData";
 
 interface Currency {
   id: number;
@@ -17,31 +18,27 @@ interface ExchangeRate {
 }
 
 const ExchangeRates: React.FC = () => {
-  const { data: rates, loading, error } = useFetch<ExchangeRate[]>('/exchangerates');
+  const [data, setData] = useState(mockExchangeRates);
 
-  if (loading) return <p>Loading exchange rates...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  useEffect(() => {
+
+    const timer = setTimeout(() => {
+      setData(mockExchangeRates);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white shadow-md rounded">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Currency</th>
-            <th className="py-2 px-4 border-b">Rate</th>
-            <th className="py-2 px-4 border-b">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rates && rates.map(rate => (
-            <tr key={rate.id} className="hover:bg-gray-100">
-              <td className="py-2 px-4 border-b text-center">{rate.currency.code}</td>
-              <td className="py-2 px-4 border-b text-center">{rate.rate}</td>
-              <td className="py-2 px-4 border-b text-center">{new Date(rate.date).toLocaleDateString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <h2 className="text-lg font-bold">Exchange Rates</h2>
+      <ul>
+        {data.map((rate, index) => (
+          <li key={index}>
+            {rate.date}: {rate.rate}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

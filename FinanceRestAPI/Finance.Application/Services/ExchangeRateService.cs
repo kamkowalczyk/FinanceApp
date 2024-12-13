@@ -1,8 +1,9 @@
 ﻿using Finance.Application.Interfaces;
 using Finance.Domain.Entities;
 using Finance.Domain.Interfaces;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+
 
 namespace Finance.Application.Services
 {
@@ -25,7 +26,6 @@ namespace Finance.Application.Services
         public async Task FetchAndStoreExchangeRatesAsync()
         {
             using var client = new HttpClient();
-
             var url = "https://api.exchangerate.host/latest?base=EUR";
 
             var response = await client.GetAsync(url);
@@ -44,7 +44,6 @@ namespace Finance.Application.Services
                         var currencyRate = (decimal)rate.First;
 
                         var currency = await _currencyRepository.GetByCodeAsync(currencyCode);
-
                         if (currency == null)
                         {
                             currency = new Currency
@@ -52,7 +51,6 @@ namespace Finance.Application.Services
                                 Code = currencyCode,
                                 Name = currencyCode
                             };
-
                             await _currencyRepository.AddAsync(currency);
                         }
 

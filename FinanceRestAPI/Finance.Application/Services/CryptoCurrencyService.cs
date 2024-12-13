@@ -34,9 +34,9 @@ namespace Finance.Application.Services
                 {
                     var symbol = item["symbol"]?.ToString();
                     var name = item["name"]?.ToString();
-                    var currentPrice = item["current_price"]?.ToObject<decimal>();
-                    var marketCap = item["market_cap"]?.ToObject<decimal>();
-                    var totalVolume = item["total_volume"]?.ToObject<decimal>();
+                    var currentPrice = item["current_price"]?.ToObject<decimal?>();
+                    var marketCap = item["market_cap"]?.ToObject<decimal?>();
+                    var totalVolume = item["total_volume"]?.ToObject<decimal?>();
 
                     var crypto = await _cryptoCurrencyRepository.GetBySymbolAsync(symbol);
                     if (crypto == null)

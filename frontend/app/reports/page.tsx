@@ -1,10 +1,9 @@
+// app/reports/page.tsx
+import Head from 'next/head';
+import Navbar from '../../src/components/Navbar';
+import Reports from '../../src/components/Reports';
 
-import Navbar from '@/components/Navbar'
-import Reports from '@/components/Reports'
-import Head from 'next/head'
-
-
-const ReportsPage: React.FC = () => {
+export default function ReportsPage() {
   return (
     <>
       <Head>
@@ -16,7 +15,5 @@ const ReportsPage: React.FC = () => {
         <Reports />
       </main>
     </>
-  )
+  );
 }
-
-export default ReportsPage

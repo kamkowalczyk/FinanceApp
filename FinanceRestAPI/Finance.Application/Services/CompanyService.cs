@@ -3,8 +3,8 @@ using Finance.Domain.Entities;
 using Finance.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Threading.Tasks;
+
+
 
 namespace Finance.Application.Services
 {
@@ -20,31 +20,32 @@ namespace Finance.Application.Services
         {
             _companyRepository = companyRepository;
             _logger = logger;
-            _apiKey = "SMH7APF3Z8TM0FFM";
+            _apiKey = "SMH7APF3Z8TM0FFM"; 
         }
 
         public async Task FetchAndStoreCompanyDataAsync()
         {
-            var symbols = new[] { "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA" }; 
+            var symbols = new[] { "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA" };
+
+            using var client = new HttpClient();
 
             foreach (var symbol in symbols)
             {
-                using var client = new HttpClient();
                 var url = $"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={_apiKey}";
-
                 var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var data = JObject.Parse(content);
-
                     var globalQuote = data["Global Quote"];
+
                     if (globalQuote != null)
                     {
-                        var company = await _companyRepository.GetBySymbolAsync(symbol);
-                        var price = decimal.TryParse(globalQuote["05. price"]?.ToString(), out var p) ? p : (decimal?)null;
+                        var priceStr = globalQuote["05. price"]?.ToString();
+                        var price = decimal.TryParse(priceStr, out var p) ? p : (decimal?)null;
                         var name = symbol;
 
+                        var company = await _companyRepository.GetBySymbolAsync(symbol);
                         if (company == null)
                         {
                             company = new Company
@@ -75,7 +76,7 @@ namespace Finance.Application.Services
                     _logger.LogError($"Failed to fetch data for symbol {symbol}.");
                 }
 
-                await Task.Delay(12000); 
+                await Task.Delay(15000);
             }
         }
     }
