@@ -10,6 +10,7 @@ namespace Finance.Domain.Entities
         public decimal? CurrentPrice { get; set; }
         public decimal? MarketCap { get; set; }
         public decimal? TotalVolume { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime LastUpdated { get; set; }
     }
 }

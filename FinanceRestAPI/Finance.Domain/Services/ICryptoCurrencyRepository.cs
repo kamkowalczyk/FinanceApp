@@ -8,5 +8,6 @@ namespace Finance.Domain.Services
         Task<CryptoCurrency> GetBySymbolAsync(string symbol);
         Task AddAsync(CryptoCurrency cryptoCurrency);
         Task UpdateAsync(CryptoCurrency cryptoCurrency);
+        Task<IEnumerable<CryptoCurrency>> GetTop10ByMarketCapAsync();
     }
 }

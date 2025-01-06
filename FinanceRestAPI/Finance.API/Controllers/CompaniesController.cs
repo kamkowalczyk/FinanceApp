@@ -1,8 +1,6 @@
 ﻿using Finance.Domain.Entities;
 using Finance.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Finance.API.Controllers
 {
@@ -18,20 +16,28 @@ namespace Finance.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Company>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var companies = await _companyRepository.GetAllAsync();
-            return Ok(companies);
+            var result = companies.Select(c => new
+            {
+                Id = c.Id,
+                Symbol = c.Symbol,
+                Name = c.Name,
+                CurrentPrice = c.CurrentPrice,
+                MarketCap = c.MarketCap,
+                LastUpdated = c.LastUpdated
+            });
+            return Ok(result);
         }
 
         [HttpGet("{symbol}")]
-        public async Task<ActionResult<Company>> GetBySymbol(string symbol)
+        public async Task<IActionResult> GetBySymbol(string symbol)
         {
             var company = await _companyRepository.GetBySymbolAsync(symbol);
             if (company == null)
-            {
                 return NotFound();
-            }
+
             return Ok(company);
         }
     }

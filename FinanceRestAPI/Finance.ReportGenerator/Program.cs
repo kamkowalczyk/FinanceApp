@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Finance.ReportGenerator;       
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Finance.Infrastructure.Data;
-using Finance.Domain.Entities;
 using System.Threading.Tasks;
+using QuestPDF.Infrastructure;
 
 namespace Finance.ReportGenerator
 {
@@ -12,12 +12,14 @@ namespace Finance.ReportGenerator
     {
         static async Task Main(string[] args)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            await serviceProvider.GetService<ReportService>().GenerateReportAsync();
+            var reportService = serviceProvider.GetService<ReportService>();
+            await reportService.GeneratePdfReportAsync();
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -26,7 +28,6 @@ namespace Finance.ReportGenerator
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
-
             services.AddSingleton<IConfiguration>(configuration);
 
             services.AddDbContext<FinanceDbContext>(options =>
@@ -34,5 +35,7 @@ namespace Finance.ReportGenerator
 
             services.AddTransient<ReportService>();
         }
+
     }
+
 }

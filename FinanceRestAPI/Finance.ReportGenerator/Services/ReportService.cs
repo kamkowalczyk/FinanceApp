@@ -1,6 +1,8 @@
-﻿using System.Text;
-using Finance.Infrastructure.Data;
+﻿using Finance.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 
 namespace Finance.ReportGenerator
 {
@@ -13,7 +15,7 @@ namespace Finance.ReportGenerator
             _context = context;
         }
 
-        public async Task GenerateReportAsync()
+        public async Task GeneratePdfReportAsync()
         {
             var exchangeRates = await _context.ExchangeRates
                 .Include(e => e.Currency)
@@ -21,39 +23,77 @@ namespace Finance.ReportGenerator
                 .OrderBy(e => e.Date)
                 .ToListAsync();
 
+
             var groupedRates = exchangeRates
                 .GroupBy(e => e.Currency.Code)
                 .ToList();
+            var reportsDir = Path.Combine(Directory.GetCurrentDirectory(), "Reports");
+            if (!Directory.Exists(reportsDir))
+                Directory.CreateDirectory(reportsDir);
 
-            var reportBuilder = new StringBuilder();
-            reportBuilder.AppendLine($"Exchange Rate Report - {DateTime.UtcNow:dd.MM.yyyy}");
-            reportBuilder.AppendLine(new string('-', 50));
+            var fileName = $"Report_{DateTime.UtcNow:yyyyMMdd}.pdf";
+            var filePath = Path.Combine(reportsDir, fileName);
 
-            foreach (var group in groupedRates)
+            var document = Document.Create(container =>
             {
-                reportBuilder.AppendLine($"Currency: {group.Key}");
-                reportBuilder.AppendLine("Date\t\tRate");
-
-                foreach (var rate in group)
+                container.Page(page =>
                 {
-                    reportBuilder.AppendLine($"{rate.Date:yyyy-MM-dd}\t{rate.Rate:F4}");
-                }
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
 
-                reportBuilder.AppendLine();
-            }
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeColumn().Text($"Exchange Rate Report - {DateTime.UtcNow:dd.MM.yyyy}")
+                            .FontSize(18)
+                            .Bold()
+                            .FontColor(Colors.Blue.Medium);
+                    });
 
-            var reportsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Reports");
-            if (!Directory.Exists(reportsDirectory))
-            {
-                Directory.CreateDirectory(reportsDirectory);
-            }
+                    page.Content().Stack(stack =>
+                    {
+                        foreach (var group in groupedRates)
+                        {
+                            stack.Item().Text($"Currency: {group.Key}")
+                                .FontSize(14).Bold()
+                                .FontColor(Colors.Blue.Darken4);
 
-            var fileName = $"Report_{DateTime.UtcNow:yyyyMMdd}.txt";
-            var filePath = Path.Combine(reportsDirectory, fileName);
+                            stack.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(80);
+                                    columns.RelativeColumn(); 
+                                });
 
-            await File.WriteAllTextAsync(filePath, reportBuilder.ToString());
+                                table.Header(header =>
+                                {
+                                    header.Cell().Text("Date").Bold();
+                                    header.Cell().Text("Rate").Bold();
+                                });
 
-            Console.WriteLine($"Report generated: {filePath}");
+                                foreach (var rate in group)
+                                {
+                                    table.Cell().Text(rate.Date.ToString("yyyy-MM-dd"));
+                                    table.Cell().Text(rate.Rate.ToString("F4"));
+                                }
+                            });
+
+                            stack.Spacing(10);
+                        }
+                    });
+
+                    page.Footer().AlignCenter().Text(txt =>
+                    {
+                        txt.CurrentPageNumber();
+                        txt.Span(" / ");
+                        txt.TotalPages();
+                    });
+                });
+            });
+
+            document.GeneratePdf(filePath);
+
+            Console.WriteLine($"PDF generated: {filePath}");
         }
     }
 }

@@ -4,8 +4,6 @@ using Finance.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-
-
 namespace Finance.Application.Services
 {
     public class CompanyService : ICompanyService
@@ -20,7 +18,7 @@ namespace Finance.Application.Services
         {
             _companyRepository = companyRepository;
             _logger = logger;
-            _apiKey = "SMH7APF3Z8TM0FFM"; 
+            _apiKey = "SMH7APF3Z8TM0FFM";
         }
 
         public async Task FetchAndStoreCompanyDataAsync()
@@ -28,11 +26,11 @@ namespace Finance.Application.Services
             var symbols = new[] { "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA" };
 
             using var client = new HttpClient();
-
             foreach (var symbol in symbols)
             {
                 var url = $"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={_apiKey}";
                 var response = await client.GetAsync(url);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
@@ -75,7 +73,6 @@ namespace Finance.Application.Services
                 {
                     _logger.LogError($"Failed to fetch data for symbol {symbol}.");
                 }
-
                 await Task.Delay(15000);
             }
         }

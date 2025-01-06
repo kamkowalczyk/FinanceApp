@@ -14,24 +14,27 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Steruje, czy chcemy mocki, czy real
+  const useMockData = false;
+
   useEffect(() => {
     const fetchReports = async () => {
-      const useMockData = true;
-
       try {
         if (useMockData) {
+          // Mock data
           setReports([
-            { id: 1, title: 'Monthly Report - January 2024', pdfUrl: '/reports/report_jan_2024.pdf' },
-            { id: 2, title: 'Monthly Report - February 2024', pdfUrl: '/reports/report_feb_2024.pdf' },
-            { id: 3, title: 'Quarterly Report Q1 2024', pdfUrl: '/reports/report_q1_2024.pdf' },
+            { id: 1, title: 'report_jan_2024.pdf', pdfUrl: '/Reports/report_jan_2024.pdf' },
+            { id: 2, title: 'report_feb_2024.pdf', pdfUrl: '/Reports/report_feb_2024.pdf' },
           ]);
         } else {
+          // Real data z /api/reports
           const response = await fetch('/api/reports');
           if (!response.ok) throw new Error('Failed to fetch reports');
           const data = await response.json();
           setReports(data);
         }
       } catch (err) {
+        console.error(err);
         setError('Error fetching reports.');
       } finally {
         setLoading(false);
@@ -46,17 +49,16 @@ const Reports: React.FC = () => {
       <div className="text-center mb-12">
         <FaFilePdf className="text-blue-400 text-6xl mx-auto mb-4" />
         <h2 className="text-4xl font-extrabold text-blue-400">Available Reports</h2>
-        <p className="text-gray-400 mt-2">
-          Browse and download the latest reports in PDF format.
-        </p>
+        <p className="text-gray-400 mt-2">Browse and download the latest reports in PDF format.</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {loading ? (
-          <p className="text-center text-blue-400">Loading reports...</p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : reports && reports.length > 0 ? (
-          reports.map((report) => (
+
+      {loading ? (
+        <p className="text-center text-blue-400">Loading reports...</p>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
+      ) : reports && reports.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {reports.map((report) => (
             <div
               key={report.id}
               className="relative bg-gray-800 text-white rounded-xl shadow-md hover:shadow-2xl transition-shadow border border-gray-700"
@@ -76,11 +78,11 @@ const Reports: React.FC = () => {
                 </a>
               </div>
             </div>
-          ))
-        ) : (
-          <p className="text-gray-400 text-center">No reports available.</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-400 text-center">No reports available.</p>
+      )}
     </div>
   );
 };

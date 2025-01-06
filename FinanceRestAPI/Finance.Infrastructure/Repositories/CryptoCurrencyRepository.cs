@@ -1,4 +1,5 @@
 ﻿using Finance.Domain.Entities;
+using Finance.Domain.Interfaces;
 using Finance.Domain.Services;
 using Finance.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,14 @@ namespace Finance.Infrastructure.Repositories
         {
             return await _context.CryptoCurrencies
                 .FirstOrDefaultAsync(c => c.Symbol == symbol);
+        }
+
+        public async Task<IEnumerable<CryptoCurrency>> GetTop10ByMarketCapAsync()
+        {
+            return await _context.CryptoCurrencies
+                .OrderByDescending(c => c.MarketCap)
+                .Take(10)
+                .ToListAsync();
         }
 
         public async Task AddAsync(CryptoCurrency cryptoCurrency)

@@ -71,5 +71,42 @@ namespace Finance.Application.Services
                 _logger.LogError("Failed to fetch cryptocurrency data.");
             }
         }
+
+        public async Task<IEnumerable<object>> GetTop10CryptocurrenciesAsync()
+        {
+            using var client = new HttpClient();
+            var url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1";
+
+            try
+            {
+                var response = await client.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError($"Failed to fetch cryptocurrency data. Status code: {response.StatusCode}");
+                    return Enumerable.Empty<object>();
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var data = JArray.Parse(content);
+
+                var cryptocurrencies = data.Select(item => new
+                {
+                    Id = item["id"]?.ToString(),
+                    Symbol = item["symbol"]?.ToString(),
+                    Name = item["name"]?.ToString(),
+                    Image = item["image"]?.ToString(),
+                    CurrentPrice = item["current_price"]?.ToObject<decimal>(),
+                    MarketCap = item["market_cap"]?.ToObject<decimal>(),
+                    TotalVolume = item["total_volume"]?.ToObject<decimal>()
+                });
+
+                return cryptocurrencies;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching cryptocurrency data.");
+                return Enumerable.Empty<object>();
+            }
+        }
     }
 }

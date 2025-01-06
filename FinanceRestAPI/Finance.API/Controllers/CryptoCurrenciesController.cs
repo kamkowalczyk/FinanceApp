@@ -1,6 +1,6 @@
-﻿using Finance.Domain.Entities;
-using Finance.Domain.Services;
+﻿using Finance.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Finance.Domain.Services;
 
 namespace Finance.API.Controllers
 {
@@ -9,21 +9,35 @@ namespace Finance.API.Controllers
     public class CryptoCurrenciesController : ControllerBase
     {
         private readonly ICryptoCurrencyRepository _cryptoCurrencyRepository;
+        private readonly ICryptoCurrencyService _cryptoCurrencyService;
 
-        public CryptoCurrenciesController(ICryptoCurrencyRepository cryptoCurrencyRepository)
+        public CryptoCurrenciesController(
+            ICryptoCurrencyRepository cryptoCurrencyRepository,
+            ICryptoCurrencyService cryptoCurrencyService)
         {
             _cryptoCurrencyRepository = cryptoCurrencyRepository;
+            _cryptoCurrencyService = cryptoCurrencyService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CryptoCurrency>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var cryptocurrencies = await _cryptoCurrencyRepository.GetAllAsync();
-            return Ok(cryptocurrencies);
+
+            var result = cryptocurrencies.Select(c => new
+            {
+                Id = c.Id,
+                Symbol = c.Symbol,
+                Name = c.Name,
+                CurrentPrice = c.CurrentPrice,
+                MarketCap = c.MarketCap,
+                LastUpdated = c.LastUpdated
+            });
+            return Ok(result);
         }
 
         [HttpGet("{symbol}")]
-        public async Task<ActionResult<CryptoCurrency>> GetBySymbol(string symbol)
+        public async Task<IActionResult> GetBySymbol(string symbol)
         {
             var cryptocurrency = await _cryptoCurrencyRepository.GetBySymbolAsync(symbol);
             if (cryptocurrency == null)
@@ -31,6 +45,13 @@ namespace Finance.API.Controllers
                 return NotFound();
             }
             return Ok(cryptocurrency);
+        }
+
+        [HttpGet("top10")]
+        public async Task<IActionResult> GetTop10Cryptocurrencies()
+        {
+            var top10 = await _cryptoCurrencyService.GetTop10CryptocurrenciesAsync();
+            return Ok(top10);
         }
     }
 }

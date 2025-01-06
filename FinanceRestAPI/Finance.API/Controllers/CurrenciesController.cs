@@ -1,37 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Finance.Domain.Entities;
+﻿using Finance.Domain.Entities;
 using Finance.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Finance.Infrastructure.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-[ApiController]
-[Route("api/[controller]")]
-public class CurrenciesController : ControllerBase
+namespace Finance.API.Controllers
 {
-    private readonly ICurrencyRepository _currencyRepository;
-
-    public CurrenciesController(ICurrencyRepository currencyRepository)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CurrenciesController : ControllerBase
     {
-        _currencyRepository = currencyRepository;
-    }
+        private readonly FinanceDbContext _context;
+        // lub ICurrencyRepository, jeśli go zmodyfikujesz, by zwracał dane łącznie z ExchangeRates.
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Currency>>> GetCurrencies()
-    {
-        var currencies = await _currencyRepository.GetAllAsync();
-        return Ok(currencies);
-    }
-
-    [HttpGet("{code}")]
-    public async Task<ActionResult<Currency>> GetCurrency(string code)
-    {
-        var currency = await _currencyRepository.GetByCodeAsync(code);
-
-        if (currency == null)
+        public CurrenciesController(FinanceDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        return Ok(currency);
+        [HttpGet]
+        public async Task<IActionResult> GetCurrencies()
+        {
+            // Stary endpoint zwraca tylko:
+            // Id, Code, Name
+            var currencies = await _context.Currencies
+                .Select(c => new {
+                    c.Id,
+                    c.Code,
+                    c.Name
+                })
+                .ToListAsync();
+
+            return Ok(currencies);
+        }
+
+        // Nowy endpoint, np. GET /api/currencies/withRates
+        [HttpGet("withRates")]
+        public async Task<IActionResult> GetCurrenciesWithLatestRate()
+        {
+            // Pobieramy waluty i dołączamy ExchangeRates
+            // Następnie z każdej waluty wybieramy *ostatni* kurs (np. po dacie malejąco)
+            // i zwracamy w polu Rate.
+            // UWAGA: musisz mieć w encji Currency -> public ICollection<ExchangeRate> ExchangeRates { get; set; }
+            var list = await _context.Currencies
+                .Include(c => c.ExchangeRates)
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Code = c.Code,
+                    Name = c.Name,
+                    // Bierzemy NAJNOWSZĄ stawkę z ExchangeRates
+                    // Jeśli waluta nie ma stawki, wówczas Rate = 0 / null
+                    Rate = c.ExchangeRates
+                        .OrderByDescending(e => e.Date)
+                        .Select(e => e.Rate)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(list);
+        }
     }
 }
