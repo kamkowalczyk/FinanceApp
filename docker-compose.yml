@@ -1,10 +1,12 @@
+version: '3.8'
+
 services:
   finance-api:
     build:
       context: ./FinanceRestAPI
       dockerfile: Finance.API/Dockerfile
     ports:
-      - "5000:80"
+      - "5078:8080"
     depends_on:
       - db
     environment:
@@ -15,11 +17,15 @@ services:
 
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1433:1433"
     environment:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong!Passw0rd", "-Q", "SELECT 1"]
+      interval: 10s
+      retries: 5
     networks:
       - backend
 
@@ -42,6 +48,8 @@ services:
       - "3000:3000"
     depends_on:
       - finance-api
+    environment:
+      API_BASE_URL: "http://localhost:5078"
     networks:
       - frontend
       - backend
@@ -50,7 +58,9 @@ services:
 
 networks:
   backend:
+    driver: bridge
   frontend:
+    driver: bridge
 
 volumes:
   reports:

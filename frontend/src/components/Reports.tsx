@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { FaFilePdf } from 'react-icons/fa';
+import api from '../services/api'; 
 
 interface Report {
   id: number;
@@ -14,28 +15,14 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Steruje, czy chcemy mocki, czy real
-  const useMockData = false;
-
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        if (useMockData) {
-          // Mock data
-          setReports([
-            { id: 1, title: 'report_jan_2024.pdf', pdfUrl: '/Reports/report_jan_2024.pdf' },
-            { id: 2, title: 'report_feb_2024.pdf', pdfUrl: '/Reports/report_feb_2024.pdf' },
-          ]);
-        } else {
-          // Real data z /api/reports
-          const response = await fetch('/api/reports');
-          if (!response.ok) throw new Error('Failed to fetch reports');
-          const data = await response.json();
-          setReports(data);
-        }
+        const response = await api.get<Report[]>('/reports');
+        setReports(response.data);
       } catch (err) {
-        console.error(err);
-        setError('Error fetching reports.');
+        console.error('Error fetching reports:', err);
+        setError('Failed to fetch reports.');
       } finally {
         setLoading(false);
       }

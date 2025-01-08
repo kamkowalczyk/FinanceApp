@@ -5,6 +5,7 @@ using Finance.Domain.Services;
 using Finance.Infrastructure.Data;
 using Finance.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,9 +57,22 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
+var sharedReportsDir = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "SharedReports");
+if (!Directory.Exists(sharedReportsDir))
+{
+    Directory.CreateDirectory(sharedReportsDir);
+}
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(sharedReportsDir),
+    RequestPath = "/SharedReports"
+});
+
 app.UseHttpsRedirection();
 app.UseCors("AllowLocalhost3000");
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();

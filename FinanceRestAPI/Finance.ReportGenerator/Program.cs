@@ -1,9 +1,8 @@
-﻿using Finance.ReportGenerator;       
+﻿using Finance.ReportGenerator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Finance.Infrastructure.Data;
-using System.Threading.Tasks;
 using QuestPDF.Infrastructure;
 
 namespace Finance.ReportGenerator
@@ -28,14 +27,15 @@ namespace Finance.ReportGenerator
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
+
             services.AddSingleton<IConfiguration>(configuration);
 
             services.AddDbContext<FinanceDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddHttpClient();
+
             services.AddTransient<ReportService>();
         }
-
     }
-
 }

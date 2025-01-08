@@ -9,9 +9,7 @@ namespace Finance.API.Controllers
         [HttpGet]
         public IActionResult GetReports()
         {
-            // Zakładamy, że pliki PDF znajdują się w folderze "Reports" 
-            // w katalogu głównym Finance.API (tam, gdzie Program.cs).
-            var reportsDir = Path.Combine(Directory.GetCurrentDirectory(), "Reports");
+            var reportsDir = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "SharedReports");
             if (!Directory.Exists(reportsDir))
             {
                 return Ok(Array.Empty<object>());
@@ -19,11 +17,10 @@ namespace Finance.API.Controllers
 
             var pdfFiles = Directory.GetFiles(reportsDir, "*.pdf");
 
-            // generujemy listę (Id, Title, PdfUrl)
             var reports = pdfFiles.Select((filePath, index) =>
             {
                 var fileName = Path.GetFileName(filePath);
-                var fileUrl = $"{Request.Scheme}://{Request.Host}/Reports/{fileName}";
+                var fileUrl = $"{Request.Scheme}://{Request.Host}/SharedReports/{fileName}";
                 return new
                 {
                     Id = index + 1,
