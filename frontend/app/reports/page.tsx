@@ -1,4 +1,3 @@
-// app/reports/page.tsx
 import Head from 'next/head';
 import Navbar from '../../src/components/Navbar';
 import Reports from '../../src/components/Reports';

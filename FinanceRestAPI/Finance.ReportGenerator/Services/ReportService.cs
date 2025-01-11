@@ -15,6 +15,8 @@ namespace Finance.ReportGenerator
         {
             _context = context;
             _httpClient = httpClient;
+
+            QuestPDF.Settings.License = LicenseType.Community;
         }
 
         public async Task GeneratePdfReportAsync()

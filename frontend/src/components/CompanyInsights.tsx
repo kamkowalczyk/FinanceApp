@@ -21,9 +21,8 @@ const CompanyInsights: React.FC = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        // GET /api/companies
+
         const response = await api.get<Company[]>('/companies');
-        console.log('DEBUG /Companies response:', response.data);
         setCompanies(response.data);
       } catch (err) {
         console.error('Failed to fetch companies:', err);

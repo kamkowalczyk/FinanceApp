@@ -19,7 +19,6 @@ const Currencies: React.FC = () => {
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        // GET /api/currencies/withrates
         const response = await api.get<CurrencyWithRate[]>('/currencies/withrates');
         console.log('DEBUG /currencies/withrates:', response.data);
 

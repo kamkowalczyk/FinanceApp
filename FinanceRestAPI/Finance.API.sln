@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.Infrastructure", "F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.API", "Finance.API\Finance.API.csproj", "{CB390E6B-8444-48D4-9DD0-A325CE33E979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance.ReportGenerator", "Finance.ReportGenerator\Finance.ReportGenerator.csproj", "{D91F4CF7-6F87-4B28-80E6-BBFEC6C8A379}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.ReportGenerator", "Finance.ReportGenerator\Finance.ReportGenerator.csproj", "{D91F4CF7-6F87-4B28-80E6-BBFEC6C8A379}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance.Tests", "Finance.Tests\Finance.Tests.csproj", "{497F0A42-6AD4-4187-8944-70FE1236E148}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{D91F4CF7-6F87-4B28-80E6-BBFEC6C8A379}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D91F4CF7-6F87-4B28-80E6-BBFEC6C8A379}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D91F4CF7-6F87-4B28-80E6-BBFEC6C8A379}.Release|Any CPU.Build.0 = Release|Any CPU
+		{497F0A42-6AD4-4187-8944-70FE1236E148}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{497F0A42-6AD4-4187-8944-70FE1236E148}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{497F0A42-6AD4-4187-8944-70FE1236E148}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{497F0A42-6AD4-4187-8944-70FE1236E148}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

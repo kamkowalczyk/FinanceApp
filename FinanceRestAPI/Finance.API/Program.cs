@@ -4,6 +4,7 @@ using Finance.Domain.Interfaces;
 using Finance.Domain.Services;
 using Finance.Infrastructure.Data;
 using Finance.Infrastructure.Repositories;
+using Finance.ReportGenerator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -25,6 +26,10 @@ builder.Services.AddScoped<IExchangeRateRepository, ExchangeRateRepository>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ICryptoCurrencyService, CryptoCurrencyService>();
 builder.Services.AddScoped<IExchangeRateService, ExchangeRateService>();
+
+builder.Services.AddTransient<ReportService>();
+builder.Services.AddHttpClient();
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

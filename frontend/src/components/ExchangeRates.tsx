@@ -21,11 +21,9 @@ const ExchangeRates: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // /api/exchangerates -> dane z bazy (wcześniej pobrane z NBP)
         const response = await api.get<ExchangeRateDto[]>('/exchangerates');
         setData(response.data);
       } catch (err) {
-        console.error('Error fetching exchange rates:', err);
         setError('Failed to fetch exchange rates.');
       } finally {
         setLoading(false);
