@@ -8,12 +8,18 @@ services:
     ports:
       - "5078:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Server=db;Database=FinanceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
     networks:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -26,6 +32,7 @@ services:
       test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong!Passw0rd", "-Q", "SELECT 1"]
       interval: 10s
       retries: 5
+      timeout: 5s
     networks:
       - backend
 
@@ -36,9 +43,15 @@ services:
     volumes:
       - reports:/app/Reports
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /app/Reports/success.log || exit 1"]
+      interval: 30s
+      retries: 3
+      timeout: 5s
 
   frontend:
     build:
@@ -47,7 +60,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - finance-api
+      finance-api:
+        condition: service_healthy
     environment:
       API_BASE_URL: "http://finance-api:5078/api"
     networks:
@@ -55,6 +69,11 @@ services:
       - backend
     volumes:
       - reports:/app/public/reports
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   backend:
