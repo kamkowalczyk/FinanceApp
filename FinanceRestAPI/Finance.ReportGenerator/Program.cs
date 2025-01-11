@@ -12,19 +12,29 @@ namespace Finance.ReportGenerator
         static async Task Main(string[] args)
         {
             QuestPDF.Settings.License = LicenseType.Community;
+
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var reportService = serviceProvider.GetService<ReportService>();
-            await reportService.GeneratePdfReportAsync();
+            if (reportService != null)
+            {
+                await reportService.GeneratePdfReportAsync();
+            }
+            else
+            {
+                Console.WriteLine("ReportService is not configured properly.");
+            }
         }
 
         private static void ConfigureServices(IServiceCollection services)
         {
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.ReportGenerator.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.ReportGenerator.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -34,7 +44,6 @@ namespace Finance.ReportGenerator
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddHttpClient();
-
             services.AddTransient<ReportService>();
         }
     }
