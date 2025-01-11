@@ -50,9 +50,6 @@ const Currencies: React.FC = () => {
       <h2 className="text-2xl font-bold text-blue-300 group-hover:text-blue-400 transition">
         Currencies &amp; Rates
       </h2>
-      <p className="text-gray-300 mt-4">
-        Latest rates stored in your .NET API
-      </p>
       <div className="mt-6 w-full">
         <ul className="text-gray-400 text-sm space-y-2">
           {currencies.map((c) => (
